@@ -1,0 +1,35 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<mule xmlns:file="http://www.mulesoft.org/schema/mule/file" xmlns:ee="http://www.mulesoft.org/schema/mule/ee/core"
+	xmlns:http="http://www.mulesoft.org/schema/mule/http"
+	xmlns="http://www.mulesoft.org/schema/mule/core" xmlns:doc="http://www.mulesoft.org/schema/mule/documentation" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:schemaLocation="http://www.mulesoft.org/schema/mule/core http://www.mulesoft.org/schema/mule/core/current/mule.xsd
+http://www.mulesoft.org/schema/mule/http http://www.mulesoft.org/schema/mule/http/current/mule-http.xsd
+http://www.mulesoft.org/schema/mule/ee/core http://www.mulesoft.org/schema/mule/ee/core/current/mule-ee.xsd
+http://www.mulesoft.org/schema/mule/file http://www.mulesoft.org/schema/mule/file/current/mule-file.xsd">
+	<http:listener-config name="HTTP_Listener_config" doc:name="HTTP Listener config" doc:id="8bab78c6-bb02-4219-b86f-54022b932eff" >
+		<http:listener-connection host="0.0.0.0" port="8081" />
+	</http:listener-config>
+	<flow name="test-file-methodFlow" doc:id="35aaa031-76fd-4433-a004-03f820a62d64" >
+		<http:listener doc:name="Listener" doc:id="7807a427-6d0e-4e1c-8622-4c52eed2bedd" config-ref="HTTP_Listener_config" path="/file"/>
+		<ee:transform doc:name="Transform Message" doc:id="6ec63754-39c6-4795-99ee-e3aaaaa52fd8" >
+			<ee:message >
+				<ee:set-payload ><![CDATA[%dw 2.0
+import * from dw::core::Binaries
+output multipart/form-data
+---
+{
+    parts:{
+        base64Content:{
+            headers:{
+                "Content-Type":"application/pdf"
+            },
+            content: fromBase64(payload.file)
+            },
+        }
+}]]></ee:set-payload>
+			</ee:message>
+		</ee:transform>
+		<set-payload value="#[payload]" doc:name="Set Payload" doc:id="5affdd8a-4e7b-4ce9-b236-888c5fcd7ced" mimeType="application/pdf"/>
+		<file:write doc:id="d08b558c-bec6-44e7-a3be-c844373fb0eb" path="C:\Users\uca11580\AnypointStudio\studio-workspace\test-file-method\AAA"/>
+	</flow>
+</mule>
